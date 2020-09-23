@@ -18,6 +18,7 @@ int CFrelementSet::add(const char *name,uint32_t times[],float states[],int leng
 {
 	bool exists = find(name);
 	if (exists == false){
+		//adro: does the line below also counts up numFrelements by 1???
 		frelements[numFrelements++] = new CFrelement(name);
 		activeIndex = numFrelements-1;
 		active = frelements[numFrelements-1];
@@ -33,13 +34,13 @@ int CFrelementSet::evaluate(const char *name,uint32_t times[],unsigned char stat
 }
 
 int CFrelementSet::detect(const char *name,uint32_t times[],float probs[],int length,int order,float confidence,uint32_t anomTimes[],float anomVals[])
-{
+{                                         
 	if (find(name) == false)return -1;
 	return active->detect(times,probs,length,order,confidence,anomTimes,anomVals);
 }
 
 int CFrelementSet::estimate(const char *name,uint32_t times[],float probs[],int length,int order)
-{
+{ 					//adro: what is this uint32_t times[] and what does the corresponding (in fremenserver.cpp line 152) (uint32_t+)goal->times.data() mean???
 	if (find(name) == false)return -1;
 	//printf("Estimate %i %s \n",activeIndex,active->id);
 	return active->estimate(times,probs,length,order);
@@ -71,6 +72,7 @@ int CFrelementSet::getModelParameters(const char *name,float  periods[],float am
 bool CFrelementSet::find(const char *name)
 {
 	int i = 0;
+	//adro: what exactly is the below line doing???
 	for (i =0;(i<numFrelements) && (strcmp(frelements[i]->id,name)!=0);i++) {}
 	if (i==numFrelements) return false;
 	activeIndex = i;	
