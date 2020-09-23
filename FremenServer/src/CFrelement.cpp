@@ -11,11 +11,11 @@ int fremenSort(const void* i,const void* j)
 
 CFrelement::CFrelement(const char* name)
 {
-	strcpy(id,name);
+	strcpy(id,name); //adro: what does that strcpy do?
 
 	//initialization of the frequency set
 	for (int i=0;i<NUM_PERIODICITIES;i++) frelements[i].amplitude = frelements[i].phase = 0; 
-	for (int i=0;i<NUM_PERIODICITIES;i++) frelements[i].period = (7*24*3600)/(i+1); 
+	for (int i=0;i<NUM_PERIODICITIES;i++) frelements[i].period = (7*24*3600)/(i+1); //adro: how do they calculate the period time here??
 	gain = 0.5;
 	firstTime = -1;
 	lastTime = -1;
@@ -41,7 +41,7 @@ int CFrelement::add(uint32_t times[],float states[],int length)
 	int firstIndex = 0;
 
 	//discard already known observations 
-	for (int i=0;i<length;i++)if (times[i] <= lastTime)firstIndex++;
+	for (int i=0;i<length;i++)if (times[i] <= lastTime)firstIndex++; //adro: verifys that just newer observations get processed
 	int numUpdated = length-firstIndex;
 
 	//verify if there is an actual update
@@ -52,10 +52,10 @@ int CFrelement::add(uint32_t times[],float states[],int length)
 	float oldGain=0;
 	float newGain=0;
 	for (int j = firstIndex;j<length;j++)newGain+=states[j];
-	gain = (gain*measurements+newGain)/(measurements+length);
+	gain = (gain*measurements+newGain)/(measurements+length);  //adro: maybe that line is responsible for always printing the static prediction...check!!!
 
 	//recalculate spectral balance - this is beneficial is the process period does not match the length of the data
-	if (oldGain > 0){
+	if (oldGain > 0){  //adro: how can oldGain ever become greater than 0???
 		for (int i = 0;i<NUM_PERIODICITIES;i++)
 		{
 			frelements[i].realBalance  = gain*frelements[i].realBalance/oldGain;
@@ -76,7 +76,7 @@ int CFrelement::add(uint32_t times[],float states[],int length)
 	{
 		for (int i = 0;i<NUM_PERIODICITIES;i++)
 		{
-			angle = 2*M_PI*(float)times[j]/frelements[i].period;
+			angle = 2*M_PI*(float)times[j]/frelements[i].period;  //adro: what means M_PI?
 			frelements[i].realStates   += states[j]*cos(angle);
 			frelements[i].imagStates   += states[j]*sin(angle);
 			frelements[i].realBalance  += gain*cos(angle);
@@ -91,9 +91,11 @@ int CFrelement::add(uint32_t times[],float states[],int length)
 	{
 		re = frelements[i].realStates-frelements[i].realBalance;
 		im = frelements[i].imagStates-frelements[i].imagBalance;
+		//adro: this next line could be really interesting in terms of why the program always prints out 0s!!!
 		if (1.5*frelements[i].period <= duration) frelements[i].amplitude = sqrt(re*re+im*im)/measurements; else frelements[i].amplitude = 0;
 		if (frelements[i].amplitude < FREMEN_AMPLITUDE_THRESHOLD) frelements[i].amplitude = 0;
 		//frelements[i].amplitude = sqrt(re*re+im*im)/measurements;
+		//adro: check if also the phase is always set to 0!!!
 		frelements[i].phase = atan2(im,re);
 	}
 
@@ -177,7 +179,7 @@ int CFrelement::estimate(uint32_t times[],float probs[],int length,int orderi)
 {
 	float estimate = 0;
 	float time;
-	for (int j = 0;j<length;j++)
+	for (int j = 0;j<length;j++)  //adro: for each time stamp is beeing calculated the probability up to the order given in message
 	{
 		time = times[j];
 		estimate = gain;
@@ -186,6 +188,7 @@ int CFrelement::estimate(uint32_t times[],float probs[],int length,int orderi)
 		if (estimate < 0.0) estimate =  0.0;
 		probs[j]=estimate;
 	}
+	//adro: how can the fremenserver.cpp access the probs[] array???
 	return length;
 }
 
