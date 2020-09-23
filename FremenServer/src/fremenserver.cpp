@@ -91,7 +91,7 @@ void actionServerCallback(const fremenserver::FremenGoalConstPtr& goal, Server* 
 			{
 				mess << "Added " << result.success << " of the " << (int)goal->states.size() << " provided measurements to the state " << goal->id;
 				result.message = mess.str(); 
-			}else{
+			}else{ //adro: how can result.success ever be smaller than 0? The below written message should not be visible even while creating a new state!!!
 				mess << "A new state " <<  goal->id << " was added to the collection and filled with "  << (int)goal->states.size() << " measurements.";
 				result.message = mess.str(); 
 			}
@@ -111,7 +111,7 @@ void actionServerCallback(const fremenserver::FremenGoalConstPtr& goal, Server* 
 			{
 				mess << "Added " << result.success << " of the " << (int)goal->values.size() << " provided measurements to the state " << goal->id;
 				result.message = mess.str(); 
-			}else{
+			}else{  //adro: how can result.success ever be smaller than 0? Do a test message to the server.
 				mess << "A new state " <<  goal->id << " was added to the collection and filled with "  << (int)goal->values.size() << " measurements.";
 				result.message = mess.str(); 
 			}
@@ -153,7 +153,7 @@ void actionServerCallback(const fremenserver::FremenGoalConstPtr& goal, Server* 
 		if (result.success >=0)
 		{
 			mess << "Performed " << (int)goal->times.size() << " predictions of the state " << goal->id;
-			result.probabilities.assign(probs,probs + (int)goal->times.size());
+			result.probabilities.assign(probs,probs + (int)goal->times.size());  //adro: what does this line affect??? how can fremenserver access probs from here, there is no reference given to the estimate-function???
 			result.message = mess.str();
 			server->setSucceeded(result);
 		}else{
