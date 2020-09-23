@@ -33,7 +33,7 @@ void actionServerCallback(const fremenserver::FremenGoalConstPtr& goal, Server* 
 	if (goal->order > NUM_PERIODICITIES)
 	{
 		result.success = false;
-		result.message = "Model order is too high. Reasonable value is 2, maximum is NUM_PERIODICITIES.";
+		result.message = "Model order is too high. Reasonable value is 2, maximum is NUM_PERIODICITIES."; //adro: is it on purpose, that NUM_PERIODICITIES is printed instead of the corresponding number???
 		server->setAborted(result);
 		return;
 	}
@@ -266,14 +266,14 @@ void actionServerCallback(const fremenserver::FremenGoalConstPtr& goal, Server* 
 			if (result.success == goal->order)
 			{
 				mess << "Returning " << goal->order << " FreMen model parameters of "  << goal->id << ". The probabilities field contains frequencies, the entropies field contains phase amplitudes and the errors field contains phase shifts. Infinite period corresponds to static probability.";
-				result.probabilities.assign(periods,periods + (int)(goal->order+1));
+				result.probabilities.assign(periods,periods + (int)(goal->order+1));  //adro: how can the result access the periods, amplitudes and phases arrays???
 				result.entropies.assign(amplitudes,amplitudes + (int)(goal->order+1));
 				result.errors.assign(phases,phases + (int)(goal->order+1));
 
 				result.message = mess.str();
 				server->setSucceeded(result);
 			}else{
-				mess << "State ID " << goal->id << " does not exist.";
+				mess << "State ID " << goal->id << " does not exist."; //adro: this line will never get printed because of earlier check...or not???
 				result.message = mess.str();
 				server->setAborted(result);
 			}
